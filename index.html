@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ceries Blog Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --black:#0A0A0A;--card:#161616;--card2:#1E1E1E;
+  --orange:#E8673A;--white:#FFFFFF;--gray:#A0A0A0;--gray2:#666;
+  --border:rgba(255,255,255,0.08);
+}
+body{font-family:'Inter',sans-serif;background:var(--black);color:var(--white);height:100vh;overflow:hidden;}
+.app{display:flex;flex-direction:column;height:100vh;}
+
+/* Header */
+.app-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 24px;background:var(--card);
+  border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.app-title{display:flex;align-items:center;gap:10px;font-weight:800;font-size:15px;}
+.logo-dots{display:grid;grid-template-columns:1fr 1fr;gap:3px;width:18px;}
+.logo-dot{width:7px;height:7px;background:var(--orange);border-radius:2px;}
+.btn-download{
+  background:var(--orange);color:var(--white);
+  border:none;padding:9px 24px;border-radius:99px;
+  font-size:13px;font-weight:700;letter-spacing:0.04em;
+  cursor:pointer;font-family:inherit;transition:background 0.15s;
+}
+.btn-download:hover{background:#d05a2f;}
+
+/* Body */
+.app-body{display:grid;grid-template-columns:400px 1fr;flex:1;overflow:hidden;}
+
+/* Form */
+.form-panel{
+  background:var(--card);border-right:1px solid var(--border);
+  overflow-y:auto;padding:20px 20px 40px;
+}
+.section-label{
+  font-size:10px;font-weight:800;letter-spacing:0.14em;
+  text-transform:uppercase;color:var(--orange);
+  margin:22px 0 12px;
+}
+.section-label:first-child{margin-top:0;}
+.field{margin-bottom:12px;}
+.field label{font-size:11.5px;font-weight:600;color:var(--gray);display:block;margin-bottom:5px;}
+.field input,.field textarea{
+  width:100%;background:#0f0f0f;border:1px solid var(--border);
+  border-radius:9px;color:var(--white);font-family:inherit;
+  font-size:13px;padding:9px 13px;outline:none;transition:border-color 0.15s;
+}
+.field input:focus,.field textarea:focus{border-color:rgba(232,103,58,0.5);}
+.field textarea{resize:vertical;min-height:78px;line-height:1.6;}
+.field .hint{font-size:11px;color:var(--gray2);margin-top:4px;}
+
+.img-upload{
+  width:100%;background:#0f0f0f;border:1.5px dashed rgba(255,255,255,0.15);
+  border-radius:9px;padding:16px;text-align:center;
+  cursor:pointer;transition:border-color 0.15s;position:relative;overflow:hidden;
+}
+.img-upload:hover{border-color:var(--orange);}
+.img-upload input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;}
+.img-upload-text{font-size:12px;color:var(--gray);pointer-events:none;}
+.img-upload-text span{color:var(--orange);font-weight:600;}
+.img-thumb{width:100%;height:72px;object-fit:cover;border-radius:6px;display:none;}
+.form-divider{border:none;border-top:1px solid var(--border);margin:8px 0;}
+
+/* Preview */
+.preview-panel{background:#111;display:flex;flex-direction:column;overflow:hidden;}
+.preview-toolbar{
+  padding:9px 16px;background:var(--card);
+  border-bottom:1px solid var(--border);
+  font-size:12px;color:var(--gray);
+  display:flex;align-items:center;gap:8px;flex-shrink:0;
+}
+.pdot{width:8px;height:8px;border-radius:50%;}
+#preview-frame{flex:1;border:none;width:100%;height:100%;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="app-header">
+    <div class="app-title">
+      <svg width="24" height="24" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="16" y="16" width="19" height="19" rx="6" fill="#e07850" transform="rotate(45 25.5 25.5)"/>
+        <rect x="45" y="16" width="19" height="19" rx="6" fill="#e07850" transform="rotate(45 54.5 25.5)"/>
+        <rect x="16" y="45" width="19" height="19" rx="6" fill="#e07850" transform="rotate(45 25.5 54.5)"/>
+        <rect x="45" y="45" width="19" height="19" rx="6" fill="#c45a30" transform="rotate(45 54.5 54.5)"/>
+      </svg>
+      Ceries Blog Builder
+    </div>
+    <button class="btn-download" onclick="downloadPost()">⬇ Download Post</button>
+  </div>
+
+  <div class="app-body">
+
+    <!-- FORM PANEL -->
+    <div class="form-panel">
+
+      <div class="section-label">Hero</div>
+
+      <div class="field">
+        <label>Post Title</label>
+        <input type="text" id="f-title" placeholder="Why Growing Brands Choose a 3PL" oninput="update()">
+      </div>
+      <div class="field">
+        <label>Title Emphasis <span style="font-weight:400;color:#555">(shown in orange)</span></label>
+        <input type="text" id="f-title-em" placeholder="Choose a 3PL" oninput="update()">
+        <div class="hint">Leave blank to skip. Replaces the last phrase above in orange.</div>
+      </div>
+      <div class="field">
+        <label>Author Name</label>
+        <input type="text" id="f-author" placeholder="Jane Smith" oninput="update()">
+      </div>
+      <div class="field">
+        <label>Publish Date</label>
+        <input type="text" id="f-date" placeholder="April 28, 2026" oninput="update()">
+      </div>
+      <div class="field">
+        <label>Featured Image</label>
+        <div class="img-upload" id="wrap-feat">
+          <input type="file" accept="image/*" onchange="loadImg(this,'thumb-feat','wrap-feat','featured')">
+          <img class="img-thumb" id="thumb-feat">
+          <div class="img-upload-text"><span>Click to upload</span> or drag &amp; drop</div>
+        </div>
+      </div>
+
+      <hr class="form-divider">
+      <div class="section-label">Intro</div>
+
+      <div class="field">
+        <label>Opening Paragraph</label>
+        <textarea id="f-intro" placeholder="Hook the reader. State the problem your audience is dealing with and give them a reason to keep reading. 60–100 words." oninput="update()"></textarea>
+      </div>
+
+      <hr class="form-divider">
+      <div class="section-label">Section 1</div>
+
+      <div class="field">
+        <label>Subheading</label>
+        <input type="text" id="f-s1-head" placeholder="The Problem With In-House Fulfillment" oninput="update()">
+      </div>
+      <div class="field">
+        <label>Body Text</label>
+        <textarea id="f-s1-body" placeholder="Write the first main point here. One idea per section, plain language. 150–250 words." oninput="update()"></textarea>
+      </div>
+      <div class="field">
+        <label>Quick Tip <span style="font-weight:400;color:#555">(optional — shown in orange box)</span></label>
+        <textarea id="f-tip" placeholder="A key stat or insight that deserves to stand out. 1–2 sentences." style="min-height:58px" oninput="update()"></textarea>
+      </div>
+      <div class="field">
+        <label>Continuation <span style="font-weight:400;color:#555">(optional)</span></label>
+        <textarea id="f-s1-cont" placeholder="Continue the point after the tip..." style="min-height:58px" oninput="update()"></textarea>
+      </div>
+
+      <hr class="form-divider">
+      <div class="section-label">Section 2</div>
+
+      <div class="field">
+        <label>Subheading</label>
+        <input type="text" id="f-s2-head" placeholder="How Ceries Solves It" oninput="update()">
+      </div>
+      <div class="field">
+        <label>Body Text</label>
+        <textarea id="f-s2-body" placeholder="Continue building on the topic. Good for a concrete example or step-by-step." oninput="update()"></textarea>
+      </div>
+      <div class="field">
+        <label>Section Image <span style="font-weight:400;color:#555">(optional)</span></label>
+        <div class="img-upload" id="wrap-s2">
+          <input type="file" accept="image/*" onchange="loadImg(this,'thumb-s2','wrap-s2','s2')">
+          <img class="img-thumb" id="thumb-s2">
+          <div class="img-upload-text"><span>Click to upload</span> or drag &amp; drop</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Pull Quote / Highlight <span style="font-weight:400;color:#555">(optional — purple border)</span></label>
+        <textarea id="f-quote" placeholder="A standout quote or statement worth emphasizing." style="min-height:58px" oninput="update()"></textarea>
+      </div>
+
+      <hr class="form-divider">
+      <div class="section-label">Wrapping Up</div>
+
+      <div class="field">
+        <label>Closing Paragraph</label>
+        <textarea id="f-wrap" placeholder="Summarize the key takeaway in 2–3 sentences. Reinforce what Ceries does for growing brands." oninput="update()"></textarea>
+      </div>
+
+      <hr class="form-divider">
+      <div class="section-label">CTA</div>
+
+      <div class="field">
+        <label>CTA Body Copy</label>
+        <textarea id="f-cta" placeholder="Invite the reader to book a demo or get started. 1–2 sentences." style="min-height:58px" oninput="update()"></textarea>
+      </div>
+
+      <hr class="form-divider">
+      <div class="section-label">Read More Links</div>
+
+      <div class="field">
+        <label>Link 1 Title</label>
+        <input type="text" id="f-rm1" oninput="update()" placeholder="Pick, Pack, Ship: How the Ceries Fulfillment Process Works">
+      </div>
+      <div class="field">
+        <label>Link 2 Title</label>
+        <input type="text" id="f-rm2" oninput="update()" placeholder="What Is a 3PL and Why Growing Brands Are Switching">
+      </div>
+      <div class="field">
+        <label>Link 3 Title</label>
+        <input type="text" id="f-rm3" oninput="update()" placeholder="5 Signs Your Brand Has Outgrown In-House Fulfillment">
+      </div>
+      <div class="field">
+        <label>Link 4 Title <span style="font-weight:400;color:#555">(optional)</span></label>
+        <input type="text" id="f-rm4" oninput="update()" placeholder="How to Choose the Right 3PL Partner">
+      </div>
+      <div class="field">
+        <label>Link 5 Title <span style="font-weight:400;color:#555">(optional)</span></label>
+        <input type="text" id="f-rm5" oninput="update()" placeholder="Inventory Management 101: Avoid Stockouts and Overstock">
+      </div>
+
+    </div>
+
+    <!-- PREVIEW PANEL -->
+    <div class="preview-panel">
+      <div class="preview-toolbar">
+        <div class="pdot" style="background:#ff5f57"></div>
+        <div class="pdot" style="background:#febc2e"></div>
+        <div class="pdot" style="background:#28c840"></div>
+        <span style="margin-left:8px;">Live Preview — updates as you type</span>
+      </div>
+      <iframe id="preview-frame" srcdoc=""></iframe>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const imgs = { featured: null, s2: null };
+
+function loadImg(input, thumbId, wrapperId, key) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    imgs[key] = e.target.result;
+    const thumb = document.getElementById(thumbId);
+    thumb.src = e.target.result;
+    thumb.style.display = 'block';
+    document.querySelector('#' + wrapperId + ' .img-upload-text').style.display = 'none';
+    update();
+  };
+  reader.readAsDataURL(file);
+}
+
+function g(id) {
+  return (document.getElementById(id)?.value || '').trim();
+}
+
+function esc(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/\n/g, '<br>');
+}
+
+function initials(name) {
+  return (name || 'CL').split(' ').map(w => w[0] || '').join('').slice(0, 2).toUpperCase();
+}
+
+function generateHTML() {
+  const title   = g('f-title')   || 'Your Blog Post Title';
+  const titleEm = g('f-title-em');
+  const author  = g('f-author')  || 'Ceries Team';
+  const date    = g('f-date')    || 'April 2026';
+  const intro   = g('f-intro');
+  const s1head  = g('f-s1-head');
+  const s1body  = g('f-s1-body');
+  const tip     = g('f-tip');
+  const s1cont  = g('f-s1-cont');
+  const s2head  = g('f-s2-head');
+  const s2body  = g('f-s2-body');
+  const quote   = g('f-quote');
+  const wrap    = g('f-wrap');
+  const cta     = g('f-cta');
+  const links   = [g('f-rm1'),g('f-rm2'),g('f-rm3'),g('f-rm4'),g('f-rm5')].filter(Boolean);
+
+  const titleHTML = titleEm
+    ? `${esc(title.replace(new RegExp(titleEm.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'$'),''))} <em>${esc(titleEm)}</em>`
+    : esc(title);
+
+  const featImgHTML = imgs.featured
+    ? `<img src="${imgs.featured}" style="width:100%;height:300px;object-fit:cover;border-radius:20px;border:1px solid rgba(255,255,255,0.12);display:block;">`
+    : `<div style="height:260px;background:linear-gradient(135deg,#1a1a1a,#252525);border-radius:20px;border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;color:#555;font-size:12px;letter-spacing:0.1em;text-transform:uppercase;">Featured Image</div>`;
+
+  const s2imgHTML = imgs.s2
+    ? `<div style="border-radius:16px;overflow:hidden;margin-bottom:14px;"><img src="${imgs.s2}" style="width:100%;max-height:360px;object-fit:cover;display:block;"></div>`
+    : '';
+
+  const tipHTML = tip
+    ? `<div class="block-tip"><div class="tip-label">Quick Tip</div><p>${esc(tip)}</p></div>`
+    : '';
+
+  const s1contHTML  = s1cont  ? `<div class="block">${esc(s1cont)}</div>` : '';
+  const quoteHTML   = quote   ? `<div class="block-purple">${esc(quote)}</div>` : '';
+
+  const section2HTML = (s2head || s2body) ? `
+    <hr class="divider">
+    <div class="subhead"><div class="diamond"></div>${esc(s2head || 'Section 2')}</div>
+    ${s2body  ? `<div class="block">${esc(s2body)}</div>` : ''}
+    ${s2imgHTML}
+    ${quoteHTML}` : '';
+
+  const wrapHTML = wrap ? `
+    <hr class="divider">
+    <div class="subhead"><div class="diamond"></div>Wrapping Up</div>
+    <div class="block">${esc(wrap)}</div>` : '';
+
+  const readMoreHTML = links.length ? `
+    <div class="read-more-box">
+      <div class="read-more-title">Read More</div>
+      <ul class="read-more-list">
+        ${links.map(t => `<li><a href="#">${esc(t)}</a></li>`).join('\n        ')}
+      </ul>
+    </div>` : '';
+
+  const sidebarCard = (i) => `
+    <div class="sidebar-card">
+      <div class="sc-thumb">Image</div>
+      <div class="sc-body">
+        <div class="sc-date">April 2026</div>
+        <div class="sc-title">Blog Post Title Here</div>
+      </div>
+    </div>`;
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${esc(title)} — Ceries</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --black:#0A0A0A;--card:#161616;--card2:#1E1E1E;
+  --orange:#E8673A;--orange-dark:#7A2E10;--orange-tip:#2A1208;
+  --white:#FFFFFF;--gray:#A0A0A0;--gray2:#666;
+  --border:rgba(255,255,255,0.08);--purple:#7B5CF0;
+}
+body{font-family:'Inter',sans-serif;background:var(--black);color:var(--white);-webkit-font-smoothing:antialiased;font-size:15px;line-height:1.7;}
+nav{display:flex;align-items:center;justify-content:space-between;padding:18px 48px;background:var(--black);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;}
+.logo{display:flex;align-items:center;gap:12px;}
+.logo-dots{display:grid;grid-template-columns:1fr 1fr;gap:4px;width:24px;}
+.logo-dot{width:10px;height:10px;background:var(--orange);border-radius:2px;}
+.nav-links{display:flex;gap:28px;list-style:none;}
+.nav-links a{color:var(--white);text-decoration:none;font-size:14px;}
+.btn-demo{border:1.5px solid rgba(255,255,255,0.5);background:transparent;color:var(--white);padding:9px 22px;border-radius:99px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;}
+.hero{padding:56px 48px 48px;position:relative;overflow:hidden;background:var(--black);}
+.hero::before{content:'';position:absolute;top:-120px;right:-80px;width:600px;height:500px;background:radial-gradient(ellipse,rgba(180,60,20,0.35) 0%,transparent 65%);pointer-events:none;}
+.hero-meta{font-size:13px;color:var(--gray);margin-bottom:20px;position:relative;z-index:1;}
+.hero h1{font-size:clamp(36px,5vw,62px);font-weight:900;line-height:1.1;letter-spacing:-0.03em;position:relative;z-index:1;margin-bottom:24px;}
+.hero h1 em{font-style:normal;color:var(--orange);}
+.feat-img-box{margin:0 48px;}
+.body-wrap{display:grid;grid-template-columns:1fr 300px;gap:48px;padding:48px;max-width:1200px;margin:0 auto;align-items:start;}
+.intro-p{font-size:15px;line-height:1.85;color:var(--white);text-align:justify;margin-bottom:28px;padding-bottom:28px;border-bottom:1px solid var(--border);}
+.subhead{display:flex;align-items:center;gap:12px;font-size:18px;font-weight:800;margin-bottom:16px;letter-spacing:-0.01em;}
+.diamond{width:20px;height:20px;background:var(--orange);border-radius:4px;transform:rotate(45deg);flex-shrink:0;}
+.block{background:var(--card);border-radius:16px;padding:24px 28px;margin-bottom:14px;font-size:14.5px;line-height:1.85;text-align:justify;}
+.block-tip{background:var(--orange-tip);border-radius:16px;padding:24px 28px;margin-bottom:14px;}
+.tip-label{font-size:11px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:var(--orange);margin-bottom:10px;}
+.block-tip p{font-size:14.5px;line-height:1.8;color:rgba(255,255,255,0.85);}
+.block-purple{background:var(--card);border-radius:16px;border:2px solid var(--purple);padding:24px 28px;margin-bottom:14px;font-size:14.5px;line-height:1.85;text-align:justify;}
+.divider{border:none;border-top:1px solid var(--border);margin:32px 0;}
+.author-row{display:flex;align-items:center;gap:16px;margin:32px 0;}
+.author-hex{width:56px;height:56px;background:var(--orange-dark);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:var(--orange);flex-shrink:0;}
+.author-info p{font-size:15px;font-weight:600;}
+.author-info span{font-size:13px;color:var(--gray);}
+.read-more-box{background:var(--card);border-radius:16px;padding:28px;margin-bottom:32px;}
+.read-more-title{font-size:22px;font-weight:800;margin-bottom:18px;padding-bottom:4px;display:inline-block;border-bottom:2px solid var(--purple);}
+.read-more-list{list-style:disc;padding-left:20px;display:flex;flex-direction:column;gap:10px;}
+.read-more-list li a{color:var(--white);text-decoration:underline;font-size:14px;text-underline-offset:3px;}
+.sidebar{position:sticky;top:72px;display:flex;flex-direction:column;gap:28px;}
+.sidebar-label{font-size:18px;font-weight:800;color:var(--orange);margin-bottom:16px;}
+.sidebar-card{display:flex;gap:14px;align-items:flex-start;margin-bottom:14px;}
+.sc-thumb{width:80px;height:68px;flex-shrink:0;background:var(--card2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--gray2);letter-spacing:0.06em;text-transform:uppercase;text-align:center;}
+.sc-date{font-size:11px;color:var(--gray);margin-bottom:4px;}
+.sc-title{font-size:13.5px;font-weight:700;line-height:1.35;}
+.share-box{background:var(--card);border-radius:16px;padding:24px;}
+.share-title{font-size:12px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:var(--orange);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+.share-btn{display:flex;align-items:center;gap:12px;width:100%;padding:11px 16px;background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--white);font-size:13.5px;font-weight:500;cursor:pointer;font-family:inherit;margin-bottom:8px;}
+.cta-section{padding:0 48px 48px;max-width:1200px;margin:0 auto;}
+.cta-card{background:var(--card);border-radius:20px;padding:44px;position:relative;overflow:hidden;margin-bottom:48px;}
+.cta-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 60% 0%,rgba(180,60,20,0.35) 0%,transparent 60%);pointer-events:none;}
+.cta-eyebrow{font-size:11px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--orange);margin-bottom:12px;position:relative;z-index:1;}
+.cta-card h2{font-size:clamp(22px,3vw,34px);font-weight:900;letter-spacing:-0.02em;margin-bottom:12px;position:relative;z-index:1;}
+.cta-card p{font-size:14px;color:var(--gray);font-weight:300;line-height:1.8;margin-bottom:28px;max-width:500px;position:relative;z-index:1;}
+.cta-btns{display:flex;gap:12px;position:relative;z-index:1;}
+.btn-orange{background:var(--orange);color:var(--white);border:none;padding:13px 28px;border-radius:99px;font-size:13px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;font-family:inherit;}
+.btn-dark{background:#2a2a2a;color:var(--white);border:none;padding:13px 28px;border-radius:99px;font-size:13px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;font-family:inherit;}
+.more-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:20px;}
+.more-head h3{font-size:18px;font-weight:800;}
+.more-head a{font-size:14px;color:var(--orange);font-weight:700;text-decoration:none;}
+.blog-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.blog-card{background:var(--card);border-radius:16px;overflow:hidden;}
+.bc-img{height:160px;background:linear-gradient(180deg,#1a1a1a 0%,#0f0f0f 100%);border-bottom:1px solid var(--border);}
+.bc-body{padding:16px 18px 20px;}
+.bc-tag{font-size:9.5px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:var(--orange);margin-bottom:6px;}
+.bc-title{font-size:14.5px;font-weight:800;line-height:1.35;margin-bottom:4px;}
+.bc-excerpt{font-size:12.5px;color:var(--gray);font-weight:300;}
+.newsletter{padding:72px 48px;text-align:center;border-top:1px solid var(--border);}
+.newsletter h2{font-size:clamp(24px,3vw,38px);font-weight:900;letter-spacing:-0.02em;margin-bottom:10px;}
+.newsletter p{font-size:14px;color:var(--gray);margin-bottom:32px;}
+.email-row{display:flex;align-items:center;max-width:700px;margin:0 auto;background:#1a1a1a;border-radius:99px;padding:6px 6px 6px 24px;}
+.email-row input{flex:1;background:transparent;border:none;outline:none;color:var(--white);font-size:14px;font-family:inherit;}
+.btn-subscribe{background:var(--orange);color:var(--white);border:none;padding:12px 28px;border-radius:99px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">
+    <svg width="32" height="32" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="16" y="16" width="19" height="19" rx="6" fill="#e07850" transform="rotate(45 25.5 25.5)"/>
+      <rect x="45" y="16" width="19" height="19" rx="6" fill="#e07850" transform="rotate(45 54.5 25.5)"/>
+      <rect x="16" y="45" width="19" height="19" rx="6" fill="#e07850" transform="rotate(45 25.5 54.5)"/>
+      <rect x="45" y="45" width="19" height="19" rx="6" fill="#c45a30" transform="rotate(45 54.5 54.5)"/>
+    </svg>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#">Fulfillment</a></li>
+    <li><a href="#">Inventory</a></li>
+    <li><a href="#">Warehouse Management</a></li>
+    <li><a href="#">Logistics</a></li>
+  </ul>
+  <button class="btn-demo">Request Demo</button>
+</nav>
+
+<div class="hero">
+  <p class="hero-meta">Published on ${esc(date)} &nbsp;·&nbsp; Written by ${esc(author)}</p>
+  <h1>${titleHTML}</h1>
+</div>
+
+<div class="feat-img-box">
+  ${featImgHTML}
+</div>
+
+<div class="body-wrap">
+  <main>
+    ${intro ? `<p class="intro-p">${esc(intro)}</p>` : ''}
+
+    ${(s1head || s1body) ? `
+    <div class="subhead"><div class="diamond"></div>${esc(s1head || 'Section 1')}</div>
+    ${s1body  ? `<div class="block">${esc(s1body)}</div>` : ''}
+    ${tipHTML}
+    ${s1contHTML}` : ''}
+
+    ${section2HTML}
+    ${wrapHTML}
+
+    <hr class="divider">
+
+    <div class="author-row">
+      <div class="author-hex">${initials(author)}</div>
+      <div class="author-info">
+        <p>by ${esc(author)}</p>
+        <span>${esc(date)}</span>
+      </div>
+    </div>
+
+    ${readMoreHTML}
+  </main>
+
+  <aside class="sidebar">
+    <div>
+      <div class="sidebar-label">Featured</div>
+      ${[1,2,3].map(sidebarCard).join('')}
+    </div>
+    <div>
+      <div class="sidebar-label">Latest</div>
+      ${[1,2,3].map(sidebarCard).join('')}
+    </div>
+    <div class="share-box">
+      <div class="share-title">Share This Post</div>
+      <button class="share-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+        Share on Facebook
+      </button>
+      <button class="share-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
+        Share on LinkedIn
+      </button>
+      <button class="share-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        Share on X
+      </button>
+      <button class="share-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        Share on Instagram
+      </button>
+    </div>
+  </aside>
+</div>
+
+<div class="cta-section">
+  <div class="cta-card">
+    <div class="cta-eyebrow">Ready to scale your fulfillment?</div>
+    <h2>Let Ceries Handle the Heavy Lifting.</h2>
+    <p>${cta ? esc(cta) : 'Book a demo, request a quote, or learn how Ceries stores, picks, packs, and ships for growing brands.'}</p>
+    <div class="cta-btns">
+      <button class="btn-orange">Get Started</button>
+      <button class="btn-dark">Request Demo</button>
+    </div>
+  </div>
+  <div class="more-head">
+    <h3>More from the blog</h3>
+    <a href="#">View all posts &nbsp;→</a>
+  </div>
+  <div class="blog-grid">
+    <div class="blog-card"><div class="bc-img"></div><div class="bc-body"><div class="bc-tag">Fulfillment Tips</div><div class="bc-title">Blog Title</div><div class="bc-excerpt">Short excerpt here</div></div></div>
+    <div class="blog-card"><div class="bc-img"></div><div class="bc-body"><div class="bc-tag">Industry Insights</div><div class="bc-title">Blog Title</div><div class="bc-excerpt">Short excerpt here</div></div></div>
+    <div class="blog-card"><div class="bc-img"></div><div class="bc-body"><div class="bc-tag">Ceries Updates</div><div class="bc-title">Blog Title</div><div class="bc-excerpt">Short excerpt here</div></div></div>
+  </div>
+</div>
+
+<div class="newsletter">
+  <h2>Keep up with the latest from Ceries</h2>
+  <p>Get email rounding up our latest articles with tips to improve your logistics.</p>
+  <div class="email-row">
+    <input type="email" placeholder="Enter your email address">
+    <button class="btn-subscribe">Subscribe</button>
+  </div>
+</div>
+
+</body>
+</html>`;
+}
+
+function update() {
+  document.getElementById('preview-frame').srcdoc = generateHTML();
+}
+
+function downloadPost() {
+  const title = g('f-title') || 'blog-post';
+  const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const html = generateHTML();
+  const blob = new Blob([html], { type: 'text/html' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = slug + '.html';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+update();
+</script>
+</body>
+</html>
