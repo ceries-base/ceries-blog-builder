@@ -3258,8 +3258,8 @@
         var openingHTML = op ? parseBody(op, st) : '<span class="pc-empty-ph">Hook the reader here…</span>';
         var imgW = Math.min(sz, 48) + '%';
         var imgEl = hs
-            ? '<div class="hero-img-wrap" style="width:'+imgW+';flex-shrink:0;align-self:stretch;overflow:hidden;border-radius:14px">'
-              +'<iframe srcdoc="'+esc(hs.content)+'" style="width:100%;height:'+hs.h+'px;border:none;display:block" scrolling="no"></iframe></div>'
+            ? '<div class="hero-img-wrap" style="width:'+imgW+';flex-shrink:0;align-self:flex-start">'
+              +'<iframe srcdoc="'+esc(hs.content)+'" style="width:100%;height:'+hs.h+'px;border:none;display:block;border-radius:14px" scrolling="no"></iframe></div>'
             : src
             ? '<div class="hero-img-wrap" style="width:'+imgW+';flex-shrink:0;align-self:stretch">'
               +'<img src="'+src+'" style="width:100%;height:100%;object-fit:cover;border-radius:14px;display:block" alt=""></div>'
@@ -3782,13 +3782,13 @@
         moreHTML += '</div>';
 
         var wb = (heroImgPos === 'left' || heroImgPos === 'right') ? Math.min(heroSz, 48) + '%' : heroSz + '%';
-        var heroImgH = heroHs ? '<div style="width:' + wb + ';overflow:hidden;border-radius:14px"><iframe srcdoc="' + esc(heroHs.content) + '" style="width:100%;height:' + heroHs.h + 'px;border:none;display:block" scrolling="no"></iframe></div>' : heroSrc ? '<div style="width:' + wb + '"><img src="' + heroSrc + '" style="width:100%;border-radius:14px;display:block" alt=""></div>' : '<div style="height:200px;background:#F0EDE8;border-radius:14px;border:1.5px dashed #ccc;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:11px;text-transform:uppercase">[Featured Image]</div>';
+        var heroImgH = heroHs ? '<div style="width:' + wb + '"><iframe srcdoc="' + esc(heroHs.content) + '" style="width:100%;height:' + heroHs.h + 'px;border:none;display:block;border-radius:14px" scrolling="no"></iframe></div>' : heroSrc ? '<div style="width:' + wb + '"><img src="' + heroSrc + '" style="width:100%;border-radius:14px;display:block" alt=""></div>' : '<div style="height:200px;background:#F0EDE8;border-radius:14px;border:1.5px dashed #ccc;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:11px;text-transform:uppercase">[Featured Image]</div>';
         var titleBlockH = '<div style="flex:1;min-width:0"><p style="font-size:12px;color:#888;margin-bottom:14px">Published on ' + date + ' &nbsp;·&nbsp; Written by ' + author + '</p><div class="pc-h1" id="pc-title">' + renderTitle() + '</div></div>';
         var heroHTML = '';
         var dlOpText = parseBody(g('opening'), fieldSizes['opening'] ? 'font-size:'+fieldSizes['opening']+';' : '');
         var dlImgW = Math.min(heroSz,48)+'%';
         var dlImgEl = heroHs
-            ? '<div style="width:'+dlImgW+';flex-shrink:0;align-self:stretch;overflow:hidden;border-radius:14px"><iframe srcdoc="'+esc(heroHs.content)+'" style="width:100%;height:'+heroHs.h+'px;border:none;display:block" scrolling="no"></iframe></div>'
+            ? '<div style="width:'+dlImgW+';flex-shrink:0;align-self:flex-start"><iframe srcdoc="'+esc(heroHs.content)+'" style="width:100%;height:'+heroHs.h+'px;border:none;display:block;border-radius:14px" scrolling="no"></iframe></div>'
             : heroSrc
             ? '<div style="width:'+dlImgW+';flex-shrink:0;align-self:stretch"><img src="'+heroSrc+'" style="width:100%;height:100%;object-fit:cover;border-radius:14px;display:block" alt=""></div>'
             : '<div style="width:42%;flex-shrink:0;min-height:200px;background:#F0EDE8;border-radius:14px;border:1.5px dashed #ccc;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:11px;text-transform:uppercase">[Featured Image]</div>';
