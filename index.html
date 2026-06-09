@@ -2771,8 +2771,9 @@
             r.onload = function(e) {
                 var content = e.target.result;
                 var dims = extractHtmlDims(content);
-                var resetStyle = '<style>html{overflow:hidden}body{overflow:hidden;margin:0;padding:0;font-size:0;line-height:0}</style>';
-                htmlStore[sk] = { content: resetStyle + content.trim(), w: dims.w, h: dims.h };
+                var resetStyle = '<style>html,body{margin:0;padding:0;overflow:hidden}</style>';
+                var autoResize = '<script>window.addEventListener("load",function(){var h=document.documentElement.scrollHeight||document.body.scrollHeight;if(window.frameElement)window.frameElement.style.height=h+"px";});<\/script>';
+                htmlStore[sk] = { content: resetStyle + autoResize + content.trim(), w: dims.w, h: dims.h };
                 var wr = document.getElementById(wrapId);
                 if (wr) {
                     wr.classList.add('filled');
