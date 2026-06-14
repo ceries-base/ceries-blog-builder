@@ -2771,9 +2771,8 @@
             r.onload = function(e) {
                 var content = e.target.result;
                 var dims = extractHtmlDims(content);
-                var resetStyle = '<style>html,body{margin:0;padding:0;overflow:hidden}</style>';
-                var autoResize = '<script>window.addEventListener("load",function(){var h=document.documentElement.scrollHeight||document.body.scrollHeight;if(window.frameElement)window.frameElement.style.height=h+"px";});<\/script>';
-                htmlStore[sk] = { content: resetStyle + autoResize + content.trim(), w: dims.w, h: dims.h };
+                var resetStyle = '<style>html{overflow:hidden}body{overflow:hidden;margin:0;padding:0;font-size:0;line-height:0}</style>';
+                htmlStore[sk] = { content: resetStyle + content.trim(), w: dims.w, h: dims.h };
                 var wr = document.getElementById(wrapId);
                 if (wr) {
                     wr.classList.add('filled');
@@ -3259,8 +3258,8 @@
         var openingHTML = op ? parseBody(op, st) : '<span class="pc-empty-ph">Hook the reader here…</span>';
         var imgW = Math.min(sz, 48) + '%';
         var imgEl = hs
-            ? '<div class="hero-img-wrap" style="width:'+imgW+';flex-shrink:0;align-self:flex-start">'
-              +'<iframe srcdoc="'+esc(hs.content)+'" style="width:100%;height:'+hs.h+'px;border:none;display:block;border-radius:14px" scrolling="no"></iframe></div>'
+            ? '<div class="hero-img-wrap" style="width:min('+imgW+','+hs.w+'px);flex-shrink:0;align-self:stretch;overflow:hidden;border-radius:14px;clip-path:inset(0 round 14px)">'
+              +'<iframe srcdoc="'+esc(hs.content)+'" style="width:100%;height:'+hs.h+'px;border:none;display:block" scrolling="no"></iframe></div>'
             : src
             ? '<div class="hero-img-wrap" style="width:'+imgW+';flex-shrink:0;align-self:stretch">'
               +'<img src="'+src+'" style="width:100%;height:100%;object-fit:cover;border-radius:14px;display:block" alt=""></div>'
@@ -3320,7 +3319,7 @@
         var hs = htmlSrc('sec-img-' + id);
         var btn = '<button class="img-overlay-btn" onclick="toggleSecImgPos(' + id + ')" style="opacity:0">' + (pos === 'before' ? '↓ After body' : '↑ Before body') + '</button>';
         var media = hs
-            ? '<iframe srcdoc="' + esc(hs.content) + '" style="width:100%;height:' + hs.h + 'px;border:none;display:block;border-radius:11px" scrolling="no"></iframe>'
+            ? '<div style="overflow:hidden;border-radius:11px;clip-path:inset(0 round 11px)"><iframe srcdoc="' + esc(hs.content) + '" style="width:100%;height:' + hs.h + 'px;border:none;display:block" scrolling="no"></iframe></div>'
             : '<img src="' + src + '" style="width:100%;border-radius:11px;display:block" alt="">';
         return '<div class="pc-section-img-box"><div style="display:inline-block;width:' + sz + '%;position:relative" onmouseenter="this.querySelector(\'.img-overlay-btn\').style.opacity=1" onmouseleave="this.querySelector(\'.img-overlay-btn\').style.opacity=0">' +
         media + btn +
@@ -3400,7 +3399,7 @@
     function closImgWrap(src, sz) {
         var hs = htmlSrc('closing-img');
         var media = hs
-            ? '<iframe srcdoc="' + esc(hs.content) + '" style="width:100%;height:' + hs.h + 'px;border:none;display:block;border-radius:11px" scrolling="no"></iframe>'
+            ? '<div style="overflow:hidden;border-radius:11px;clip-path:inset(0 round 11px)"><iframe srcdoc="' + esc(hs.content) + '" style="width:100%;height:' + hs.h + 'px;border:none;display:block" scrolling="no"></iframe></div>'
             : '<img src="' + src + '" style="width:100%;border-radius:11px;display:block" alt="">';
         return '<div class="pc-section-img-box"><div style="display:inline-block;width:' + sz + '%;position:relative" onmouseenter="this.querySelector(\'.img-overlay-btn\').style.opacity=1" onmouseleave="this.querySelector(\'.img-overlay-btn\').style.opacity=0">' + media + '<button class="img-overlay-btn" onclick="toggleClosingImgPos()" style="opacity:0">' + (closingImgPos === 'before' ? '↓ After text' : '↑ Before text') + '</button></div></div>';
     }
@@ -3657,11 +3656,11 @@
             if (h)
                 secHTML += '<div class="section-subhead"><div class="triple-diamond"><div class="td td1"></div><div class="td td2"></div><div class="td td3"></div></div><span class="section-subhead-text" style="' + hSt + '">' + parseFmt(h) + '</span></div>';
             if ((src || hs) && m.imgPos === 'before')
-                secHTML += hs ? '<div style="text-align:center;margin:10px 0"><iframe srcdoc="' + esc(hs.content) + '" style="width:' + sz + '%;height:' + hs.h + 'px;border:none;border-radius:11px;display:inline-block" scrolling="no"></iframe></div>' : '<div style="text-align:center;margin:10px 0"><img src="' + src + '" style="width:' + sz + '%;border-radius:11px;display:inline-block" alt=""></div>';
+                secHTML += hs ? '<div style="text-align:center;margin:10px 0"><div style="display:inline-block;width:min(' + sz + '%, ' + hs.w + 'px);overflow:hidden;border-radius:11px;clip-path:inset(0 round 11px)"><iframe srcdoc="' + esc(hs.content) + '" style="width:100%;height:' + hs.h + 'px;border:none;display:block" scrolling="no"></iframe></div></div>' : '<div style="text-align:center;margin:10px 0"><img src="' + src + '" style="width:' + sz + '%;border-radius:11px;display:inline-block" alt=""></div>';
             if (b)
                 secHTML += '<div class="pc-block">' + parseBody(b, bSt) + '</div>';
             if ((src || hs) && m.imgPos !== 'before')
-                secHTML += hs ? '<div style="text-align:center;margin:10px 0"><iframe srcdoc="' + esc(hs.content) + '" style="width:' + sz + '%;height:' + hs.h + 'px;border:none;border-radius:11px;display:inline-block" scrolling="no"></iframe></div>' : '<div style="text-align:center;margin:10px 0"><img src="' + src + '" style="width:' + sz + '%;border-radius:11px;display:inline-block" alt=""></div>';
+                secHTML += hs ? '<div style="text-align:center;margin:10px 0"><div style="display:inline-block;width:min(' + sz + '%, ' + hs.w + 'px);overflow:hidden;border-radius:11px;clip-path:inset(0 round 11px)"><iframe srcdoc="' + esc(hs.content) + '" style="width:100%;height:' + hs.h + 'px;border:none;display:block" scrolling="no"></iframe></div></div>' : '<div style="text-align:center;margin:10px 0"><img src="' + src + '" style="width:' + sz + '%;border-radius:11px;display:inline-block" alt=""></div>';
             m.tqOrder.forEach(function(key) {
                 if (key.startsWith('tip-')) {
                     var ti = parseInt(key.split('-')[1]);
@@ -3700,11 +3699,11 @@
             clHTML = '<div class="pc-section" id="pc-closing-section"><div class="section-subhead"><div class="triple-diamond"><div class="td td1"></div><div class="td td2"></div><div class="td td3"></div></div><span class="section-subhead-text" style="font-size:' + hSz2 + 'px">' + escR(sub || 'Wrapping Up') + '</span></div>';
             var clHs = htmlSrc('closing-img');
             if ((clSrc || clHs) && closingImgPos === 'before')
-                clHTML += clHs ? '<div style="text-align:center;margin:10px 0"><iframe srcdoc="' + esc(clHs.content) + '" style="width:' + clSz + '%;height:' + clHs.h + 'px;border:none;border-radius:11px;display:inline-block" scrolling="no"></iframe></div>' : '<div style="text-align:center;margin:10px 0"><img src="' + clSrc + '" style="width:' + clSz + '%;border-radius:11px;display:inline-block" alt=""></div>';
+                clHTML += clHs ? '<div style="text-align:center;margin:10px 0"><div style="display:inline-block;width:min(' + clSz + '%, ' + clHs.w + 'px);overflow:hidden;border-radius:11px;clip-path:inset(0 round 11px)"><iframe srcdoc="' + esc(clHs.content) + '" style="width:100%;height:' + clHs.h + 'px;border:none;display:block" scrolling="no"></iframe></div></div>' : '<div style="text-align:center;margin:10px 0"><img src="' + clSrc + '" style="width:' + clSz + '%;border-radius:11px;display:inline-block" alt=""></div>';
             if (cl)
                 clHTML += '<div class="pc-block">' + parseBody(cl, clSt) + '</div>';
             if ((clSrc || clHs) && closingImgPos !== 'before')
-                clHTML += clHs ? '<div style="text-align:center;margin:10px 0"><iframe srcdoc="' + esc(clHs.content) + '" style="width:' + clSz + '%;height:' + clHs.h + 'px;border:none;border-radius:11px;display:inline-block" scrolling="no"></iframe></div>' : '<div style="text-align:center;margin:10px 0"><img src="' + clSrc + '" style="width:' + clSz + '%;border-radius:11px;display:inline-block" alt=""></div>';
+                clHTML += clHs ? '<div style="text-align:center;margin:10px 0"><div style="display:inline-block;width:min(' + clSz + '%, ' + clHs.w + 'px);overflow:hidden;border-radius:11px;clip-path:inset(0 round 11px)"><iframe srcdoc="' + esc(clHs.content) + '" style="width:100%;height:' + clHs.h + 'px;border:none;display:block" scrolling="no"></iframe></div></div>' : '<div style="text-align:center;margin:10px 0"><img src="' + clSrc + '" style="width:' + clSz + '%;border-radius:11px;display:inline-block" alt=""></div>';
             clHTML += '</div>';
         }
 
@@ -3783,13 +3782,13 @@
         moreHTML += '</div>';
 
         var wb = (heroImgPos === 'left' || heroImgPos === 'right') ? Math.min(heroSz, 48) + '%' : heroSz + '%';
-        var heroImgH = heroHs ? '<div style="width:' + wb + '"><iframe srcdoc="' + esc(heroHs.content) + '" style="width:100%;height:' + heroHs.h + 'px;border:none;display:block;border-radius:14px" scrolling="no"></iframe></div>' : heroSrc ? '<div style="width:' + wb + '"><img src="' + heroSrc + '" style="width:100%;border-radius:14px;display:block" alt=""></div>' : '<div style="height:200px;background:#F0EDE8;border-radius:14px;border:1.5px dashed #ccc;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:11px;text-transform:uppercase">[Featured Image]</div>';
+        var heroImgH = heroHs ? '<div style="width:min(' + wb + ',' + heroHs.w + 'px);overflow:hidden;border-radius:14px;clip-path:inset(0 round 14px)"><iframe srcdoc="' + esc(heroHs.content) + '" style="width:100%;height:' + heroHs.h + 'px;border:none;display:block" scrolling="no"></iframe></div>' : heroSrc ? '<div style="width:' + wb + '"><img src="' + heroSrc + '" style="width:100%;border-radius:14px;display:block" alt=""></div>' : '<div style="height:200px;background:#F0EDE8;border-radius:14px;border:1.5px dashed #ccc;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:11px;text-transform:uppercase">[Featured Image]</div>';
         var titleBlockH = '<div style="flex:1;min-width:0"><p style="font-size:12px;color:#888;margin-bottom:14px">Published on ' + date + ' &nbsp;·&nbsp; Written by ' + author + '</p><div class="pc-h1" id="pc-title">' + renderTitle() + '</div></div>';
         var heroHTML = '';
         var dlOpText = parseBody(g('opening'), fieldSizes['opening'] ? 'font-size:'+fieldSizes['opening']+';' : '');
         var dlImgW = Math.min(heroSz,48)+'%';
         var dlImgEl = heroHs
-            ? '<div style="width:'+dlImgW+';flex-shrink:0;align-self:flex-start"><iframe srcdoc="'+esc(heroHs.content)+'" style="width:100%;height:'+heroHs.h+'px;border:none;display:block;border-radius:14px" scrolling="no"></iframe></div>'
+            ? '<div style="width:min('+dlImgW+','+heroHs.w+'px);flex-shrink:0;align-self:stretch;overflow:hidden;border-radius:14px;clip-path:inset(0 round 14px)"><iframe srcdoc="'+esc(heroHs.content)+'" style="width:100%;height:'+heroHs.h+'px;border:none;display:block" scrolling="no"></iframe></div>'
             : heroSrc
             ? '<div style="width:'+dlImgW+';flex-shrink:0;align-self:stretch"><img src="'+heroSrc+'" style="width:100%;height:100%;object-fit:cover;border-radius:14px;display:block" alt=""></div>'
             : '<div style="width:42%;flex-shrink:0;min-height:200px;background:#F0EDE8;border-radius:14px;border:1.5px dashed #ccc;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:11px;text-transform:uppercase">[Featured Image]</div>';
