@@ -3932,12 +3932,7 @@
     }
 
     function getGhToken() {
-        var t = localStorage.getItem('gh_submit_token');
-        if (!t) {
-            t = prompt('Enter your GitHub personal access token (needs repo scope).\nThis is stored locally and never sent anywhere except GitHub API.');
-            if (t) localStorage.setItem('gh_submit_token', t.trim());
-        }
-        return t ? t.trim() : null;
+        return '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';
     }
 
     async function submitForReview() {
