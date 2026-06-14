@@ -2277,6 +2277,7 @@
         <div class="topbar-right">
             <button class="btn btn-ghost" onclick="clearAll()">✕ Clear</button>
             <button class="btn btn-ghost" onclick="openImport()">📥 Import</button>
+            <button class="btn btn-ghost" onclick="submitForReview()" id="submit-btn">Submit for Review</button>
             <button class="btn btn-orange" onclick="downloadPost()">⬇ Download</button>
         </div>
     </div>
@@ -2665,6 +2666,7 @@
             <div class="preview-center" id="preview-center">
                 <div class="preview-top">
                     <span class="preview-label">Live preview — updates as you type</span>
+                    <button class="btn btn-ghost btn-sm" onclick="submitForReview()">Submit for Review</button>
                     <button class="btn btn-ink btn-sm" onclick="downloadPost()">⬇ Download</button>
                 </div>
                 <div class="post-card" id="post-card">
@@ -3626,7 +3628,7 @@
     }
 
     /* DOWNLOAD */
-    function downloadPost() {
+    function buildPostHTML() {
         var heroSrc = imgSrc('hero-img'),
             heroSz = gn('hero-img-size', 100);
         var heroHs = htmlSrc('hero-img');
@@ -3914,9 +3916,12 @@
         '<div class="unified-cta"><h2>Keep up with the latest from Ceries</h2><p>Get the latest fulfillment tips, updates, and insights—or book a demo to see what Ceries can do for your brand.</p><div class="unified-cta-row"><input class="unified-cta-input" type="email" placeholder="Enter your email address"><button class="btn-unified-sub">Subscribe</button><a href="'+esc(ftDemo)+'" class="btn-unified-demo">Request a Demo</a></div></div>\n' +
         '</body>\n</html>';
 
-        var blob = new Blob([out], {
-            type: 'text/html'
-        });
+        return out;
+    }
+
+    function downloadPost() {
+        var out = buildPostHTML();
+        var blob = new Blob([out], { type: 'text/html' });
         var a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
         a.download = (g('postTitle') || 'blog-post').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '.html';
@@ -3924,6 +3929,45 @@
         a.click();
         document.body.removeChild(a);
         showToast('⬇ Blog post downloaded!');
+    }
+
+    function getGhToken() {
+        var t = localStorage.getItem('gh_submit_token');
+        if (!t) {
+            t = prompt('Enter your GitHub personal access token (needs repo scope).\nThis is stored locally and never sent anywhere except GitHub API.');
+            if (t) localStorage.setItem('gh_submit_token', t.trim());
+        }
+        return t ? t.trim() : null;
+    }
+
+    async function submitForReview() {
+        var token = getGhToken();
+        if (!token) return;
+        var btns = document.querySelectorAll('[onclick*="submitForReview"]');
+        btns.forEach(function(b){ b.textContent = 'Submitting…'; b.disabled = true; });
+        try {
+            var html = buildPostHTML();
+            var title = (g('postTitle') || 'untitled').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+            var ts = new Date().toISOString().slice(0,19).replace(/[T:]/g, '-');
+            var filename = ts + '_' + title + '.html';
+            var encoded = btoa(unescape(encodeURIComponent(html)));
+            var resp = await fetch('https://api.github.com/repos/ceries-base/ceries-blog-builder/contents/submissions/' + filename, {
+                method: 'PUT',
+                headers: { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: 'Submit: ' + title, content: encoded })
+            });
+            if (resp.ok) {
+                showToast('Submitted for review!');
+            } else {
+                var err = await resp.json();
+                if (resp.status === 401) { localStorage.removeItem('gh_submit_token'); alert('Invalid token — cleared. Try again.'); }
+                else showToast('Submit failed: ' + (err.message || resp.status));
+            }
+        } catch(e) {
+            showToast('Submit error: ' + e.message);
+        } finally {
+            btns.forEach(function(b){ b.textContent = 'Submit for Review'; b.disabled = false; });
+        }
     }
 
     (function() {
