@@ -975,17 +975,17 @@
     .hero-opening-inline {
         flex: 1;
         min-width: 0;
-        font-size: 14.5px;
+        font-size: 14px;
         line-height: 1.85;
         color: var(--ink);
         text-align: justify;
         padding-top: 8px;
     }
-    .hero-opening-inline p { margin-bottom: 10px; }
+    .hero-opening-inline p { margin-bottom: 14px; }
     .hero-opening-inline p:last-child { margin-bottom: 0; }
 
     .intro-p {
-        font-size: 14.5px;
+        font-size: 14px;
         line-height: 1.85;
         color: var(--ink);
         text-align: justify;
@@ -2772,7 +2772,8 @@
                 var content = e.target.result;
                 var dims = extractHtmlDims(content);
                 var resetStyle = '<style>html{overflow:hidden}body{overflow:hidden;margin:0;padding:0;font-size:0;line-height:0}</style>';
-                htmlStore[sk] = { content: resetStyle + content.trim(), w: dims.w, h: dims.h };
+                var scaleScript = '<script>(function(){var NW='+dims.w+',NH='+dims.h+';function s(){var c=document.querySelector(\'.canvas\');if(!c)return;var sc=window.innerWidth/NW;c.style.transform=\'scale(\'+sc+\')\';c.style.transformOrigin=\'top left\';var h=Math.round(NH*sc);document.body.style.height=h+\'px\';}window.addEventListener(\'resize\',s);if(document.readyState===\'complete\')s();else window.addEventListener(\'load\',s);s();})()\x3c/script>';
+                htmlStore[sk] = { content: resetStyle + scaleScript + content.trim(), w: dims.w, h: dims.h };
                 var wr = document.getElementById(wrapId);
                 if (wr) {
                     wr.classList.add('filled');
@@ -3258,21 +3259,21 @@
         var openingHTML = op ? parseBody(op, st) : '<span class="pc-empty-ph">Hook the reader here…</span>';
         var imgW = Math.min(sz, 48) + '%';
         var imgEl = hs
-            ? '<div class="hero-img-wrap" style="width:min('+imgW+','+hs.w+'px);flex-shrink:0;align-self:stretch;overflow:hidden;border-radius:14px;clip-path:inset(0 round 14px)">'
-              +'<iframe srcdoc="'+esc(hs.content)+'" style="width:100%;height:'+hs.h+'px;border:none;display:block" scrolling="no"></iframe></div>'
+            ? '<div class="hero-img-wrap" style="width:'+imgW+';aspect-ratio:1;flex-shrink:0;align-self:flex-start;margin-top:35px;margin-left:30px;overflow:hidden;border-radius:14px;clip-path:inset(0 round 14px);transform:translateZ(0)">'
+              +'<iframe srcdoc="'+esc(hs.content)+'" style="width:100%;height:100%;border:none;display:block" scrolling="no"></iframe></div>'
             : src
             ? '<div class="hero-img-wrap" style="width:'+imgW+';flex-shrink:0;align-self:stretch">'
               +'<img src="'+src+'" style="width:100%;height:100%;object-fit:cover;border-radius:14px;display:block" alt=""></div>'
             : '<div class="hero-img-placeholder" style="width:42%;flex-shrink:0;align-self:stretch;min-height:200px">'
               +'[FEATURED IMAGE]<span style="font-size:9.5px;color:#d0ccc8">Upload in Hero →</span></div>';
-        var textCol = '<div style="flex:1;min-width:0;display:flex;flex-direction:column">'
+        var textCol = '<div style="flex:1;min-width:0;max-width:52%;padding-left:28px;display:flex;flex-direction:column">'
             + meta
             + '<div class="pc-h1" id="pc-title">' + renderTitle() + '</div>'
             + '<div class="hero-opening-inline" style="margin-top:16px">' + openingHTML + '</div>'
             + '</div>';
         var he = document.getElementById('pc-hero');
         he.classList.add('hero-side-layout');
-        he.innerHTML = '<div style="display:flex;align-items:stretch;gap:26px">' + textCol + imgEl + '</div>';
+        he.innerHTML = '<div style="display:flex;align-items:stretch;gap:48px">' + textCol + imgEl + '</div>';
         var openingEl = document.getElementById('opening-section-wrap');
         if (openingEl) openingEl.style.display = 'none';
     }
@@ -3788,16 +3789,16 @@
         var dlOpText = parseBody(g('opening'), fieldSizes['opening'] ? 'font-size:'+fieldSizes['opening']+';' : '');
         var dlImgW = Math.min(heroSz,48)+'%';
         var dlImgEl = heroHs
-            ? '<div style="width:min('+dlImgW+','+heroHs.w+'px);flex-shrink:0;align-self:stretch;overflow:hidden;border-radius:14px;clip-path:inset(0 round 14px)"><iframe srcdoc="'+esc(heroHs.content)+'" style="width:100%;height:'+heroHs.h+'px;border:none;display:block" scrolling="no"></iframe></div>'
+            ? '<div style="width:'+dlImgW+';aspect-ratio:1;flex-shrink:0;align-self:flex-start;margin-top:35px;margin-left:30px;overflow:hidden;border-radius:14px;clip-path:inset(0 round 14px);transform:translateZ(0)"><iframe srcdoc="'+esc(heroHs.content)+'" style="width:100%;height:100%;border:none;display:block" scrolling="no"></iframe></div>'
             : heroSrc
             ? '<div style="width:'+dlImgW+';flex-shrink:0;align-self:stretch"><img src="'+heroSrc+'" style="width:100%;height:100%;object-fit:cover;border-radius:14px;display:block" alt=""></div>'
             : '<div style="width:42%;flex-shrink:0;min-height:200px;background:#F0EDE8;border-radius:14px;border:1.5px dashed #ccc;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:11px;text-transform:uppercase">[Featured Image]</div>';
-        var dlTextCol = '<div style="flex:1;min-width:0;display:flex;flex-direction:column">'
+        var dlTextCol = '<div style="flex:1;min-width:0;max-width:52%;padding-left:28px;display:flex;flex-direction:column">'
             +'<p style="font-size:12px;color:#888;margin-bottom:14px">Published on '+date+'  ·  Written by '+author+'</p>'
             +'<div class="pc-h1" id="pc-title">'+renderTitle()+'</div>'
-            +'<div style="margin-top:16px;font-size:14.5px;line-height:1.85;color:#111;text-align:justify">'+dlOpText+'</div>'
+            +'<div style="margin-top:16px;font-size:14px;line-height:1.85;color:#111;text-align:justify">'+dlOpText+'</div>'
             +'</div>';
-        heroHTML = '<div style="display:flex;align-items:stretch;gap:26px">'+dlTextCol+dlImgEl+'</div>';
+        heroHTML = '<div style="display:flex;align-items:stretch;gap:48px">'+dlTextCol+dlImgEl+'</div>';
 
         var si = {
             fb: '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>',
@@ -3821,8 +3822,8 @@
         '.pc-hero{padding:44px 40px 30px;position:relative;overflow:hidden;background:radial-gradient(ellipse at 80% -10%,rgba(224,120,80,.12),transparent 55%);}' +
         '.pc-h1{font-size:clamp(28px,4vw,52px);font-weight:900;line-height:1.1;letter-spacing:-.03em;}.pc-h1 .em,.pc-h1 em{color:var(--coral);font-style:normal;}' +
         '.opening-section{padding:28px 40px 0;}' +
-        '.intro-p{font-size:14.5px;line-height:1.85;text-align:justify;padding-bottom:26px;border-bottom:1px solid rgba(0,0,0,.08);}' +
-        '.intro-p p{margin-bottom:10px;}.intro-p p:last-child{margin-bottom:0;}' +
+        '.intro-p{font-size:14px;line-height:1.85;text-align:justify;padding-bottom:26px;border-bottom:1px solid rgba(0,0,0,.08);}' +
+        '.intro-p p{margin-bottom:14px;}.intro-p p:last-child{margin-bottom:0;}' +
         '.content-layout{display:grid;grid-template-columns:220px 1fr 280px;align-items:start;}' +
         '.blog-main{padding:26px 40px 26px;min-width:0;}' +
         '.left-blog-aside{padding:44px 16px 22px;position:sticky;top:58px;align-self:start;max-height:calc(100vh - 58px);overflow-y:auto;display:flex;flex-direction:column;}' + '.right-blog-aside{padding:44px 16px 22px;position:sticky;top:58px;align-self:start;max-height:calc(100vh - 58px);overflow-y:auto;}' +
