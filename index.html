@@ -5,6 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ceries Blog Builder</title>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+    <script>
+    (function() {
+      const KEY = 'ceries_blog_auth';
+      const PASS = 'Maecontent!';
+      if (sessionStorage.getItem(KEY) !== '1') {
+        document.addEventListener('DOMContentLoaded', function() {
+          document.body.style.display = 'none';
+          var gate = document.createElement('div');
+          gate.id = 'auth-gate';
+          gate.style.cssText = 'position:fixed;inset:0;background:#F5F3F0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;font-family:DM Sans,sans-serif;';
+          gate.innerHTML = `
+            <svg width="36" height="36" viewBox="0 0 80 80" fill="none" style="margin-bottom:20px">
+              <rect x="16" y="16" width="19" height="19" rx="6" fill="#e07850" transform="rotate(45 25.5 25.5)"/>
+              <rect x="45" y="16" width="19" height="19" rx="6" fill="#e07850" transform="rotate(45 54.5 25.5)"/>
+              <rect x="16" y="45" width="19" height="19" rx="6" fill="#e07850" transform="rotate(45 25.5 54.5)"/>
+              <rect x="45" y="45" width="19" height="19" rx="6" fill="#c45a30" transform="rotate(45 54.5 54.5)"/>
+            </svg>
+            <div style="font-size:22px;font-weight:800;letter-spacing:-0.02em;margin-bottom:6px;color:#111">Ceries Blog Builder</div>
+            <div style="font-size:14px;color:#777;margin-bottom:28px">Enter your access key to continue</div>
+            <input id="pw-input" type="password" placeholder="Access key" autocomplete="off"
+              style="width:260px;padding:11px 16px;border:1.5px solid rgba(0,0,0,0.15);border-radius:10px;font-size:15px;font-family:inherit;outline:none;background:#fff;text-align:center;letter-spacing:0.05em" />
+            <div id="pw-error" style="color:#e07850;font-size:13px;margin-top:10px;min-height:18px"></div>
+            <button id="pw-btn" style="margin-top:4px;background:#e07850;color:#fff;border:none;border-radius:10px;padding:11px 32px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer">Enter</button>
+          `;
+          document.body.parentNode.insertBefore(gate, document.body);
+          function attempt() {
+            if (document.getElementById('pw-input').value === PASS) {
+              sessionStorage.setItem(KEY, '1');
+              gate.remove();
+              document.body.style.display = '';
+            } else {
+              document.getElementById('pw-error').textContent = 'Incorrect key — try again';
+              document.getElementById('pw-input').value = '';
+              document.getElementById('pw-input').focus();
+            }
+          }
+          document.getElementById('pw-btn').onclick = attempt;
+          document.getElementById('pw-input').addEventListener('keydown', function(e) { if (e.key === 'Enter') attempt(); });
+          setTimeout(function() { document.getElementById('pw-input').focus(); }, 100);
+        });
+      }
+    })();
+    </script>
     <style>
     *, *::before, *::after {
         box-sizing: border-box;
@@ -591,22 +634,6 @@
         display: block;
     }
 
-    .html-label-th {
-        display: none;
-        background: #111;
-        color: #e07850;
-        font-size: 11px;
-        font-weight: 700;
-        align-items: center;
-        justify-content: center;
-        border-radius: 5px;
-        height: 50px;
-        max-height: 80px;
-        width: 100%;
-    }
-    .uw.filled.html-filled .uth { display: none; }
-    .uw.filled.html-filled .html-label-th { display: flex; }
-
     .img-note {
         font-size: 9.5px;
         color: var(--muted);
@@ -910,6 +937,9 @@
         z-index: 5;
     }
 
+    .html-gfx-label {
+        font-size:11px;color:#e07850;padding:8px;text-align:center;font-weight:600;word-break:break-all;
+    }
     .img-overlay-btn:hover, .hero-img-wrap:hover .img-overlay-btn {
         opacity: 1;
         background: var(--orange);
@@ -945,17 +975,17 @@
     .hero-opening-inline {
         flex: 1;
         min-width: 0;
-        font-size: 14.5px;
+        font-size: 14px;
         line-height: 1.85;
         color: var(--ink);
         text-align: justify;
         padding-top: 8px;
     }
-    .hero-opening-inline p { margin-bottom: 10px; }
+    .hero-opening-inline p { margin-bottom: 14px; }
     .hero-opening-inline p:last-child { margin-bottom: 0; }
 
     .intro-p {
-        font-size: 14.5px;
+        font-size: 14px;
         line-height: 1.85;
         color: var(--ink);
         text-align: justify;
@@ -2247,6 +2277,7 @@
         <div class="topbar-right">
             <button class="btn btn-ghost" onclick="clearAll()">✕ Clear</button>
             <button class="btn btn-ghost" onclick="openImport()">📥 Import</button>
+            <button class="btn btn-ghost" onclick="submitForReview()" id="submit-btn">Submit for Review</button>
             <button class="btn btn-orange" onclick="downloadPost()">⬇ Download</button>
         </div>
     </div>
@@ -2286,14 +2317,13 @@
                         <div class="field">
                             <label>Featured Image</label>
                             <div class="uw" id="wrap-heroImg">
-                                <input type="file" accept="image/*,.html" onchange="handleHeroAsset(this,'prev-heroImg','wrap-heroImg','hero-img')">
+                                <input type="file" accept="image/*,.html" onchange="handleImg(this,'prev-heroImg','wrap-heroImg','hero-img')">
                                 <button class="ucl" onclick="clearImg(event,'prev-heroImg','wrap-heroImg','hero-img')">✕</button>
                                 <div class="uw-ph">
                                     <div style="font-size:17px">🖼</div>
                                     <p>Click or drag &amp; drop</p>
                                 </div>
                                 <img id="prev-heroImg" class="uth" src="" alt="">
-                                <div class="html-label-th">HTML</div>
                             </div>
                             <div class="field" style="margin-top:8px">
                             </div>
@@ -2404,7 +2434,7 @@
                                 <span class="opt">— optional</span>
                             </label>
                             <div class="uw" id="wrap-closingImg">
-                                <input type="file" accept="image/*" onchange="handleImg(this,'prev-closingImg','wrap-closingImg','closing-img')">
+                                <input type="file" accept="image/*,.html" onchange="handleImg(this,'prev-closingImg','wrap-closingImg','closing-img')">
                                 <button class="ucl" onclick="clearImg(event,'prev-closingImg','wrap-closingImg','closing-img')">✕</button>
                                 <div class="uw-ph">
                                     <div style="font-size:15px">🖼</div>
@@ -2636,6 +2666,7 @@
             <div class="preview-center" id="preview-center">
                 <div class="preview-top">
                     <span class="preview-label">Live preview — updates as you type</span>
+                    <button class="btn btn-ghost btn-sm" onclick="submitForReview()">Submit for Review</button>
                     <button class="btn btn-ink btn-sm" onclick="downloadPost()">⬇ Download</button>
                 </div>
                 <div class="post-card" id="post-card">
@@ -2708,7 +2739,7 @@
 
     <script>
 
-    var imageStore = {},
+    var imageStore = {}, htmlStore = {},
         secCount = 0,
         secOrder = [],
         secMeta = {};
@@ -2726,57 +2757,61 @@
     function imgSrc(k) {
         return imageStore[k] || null;
     }
+    function htmlSrc(k) {
+        return htmlStore[k] || null;
+    }
+    function extractHtmlDims(content) {
+        var wm = content.match(/width[:\s]+(\d+)px/);
+        var hm = content.match(/height[:\s]+(\d+)px/);
+        return { w: wm ? parseInt(wm[1]) : 427, h: hm ? parseInt(hm[1]) : 455 };
+    }
     function handleImg(input, thumbId, wrapId, sk) {
         var f = input.files[0];
-        if (!f)
+        if (!f) return;
+        if (f.name.slice(-5).toLowerCase() === '.html' || f.type === 'text/html') {
+            var r = new FileReader();
+            r.onload = function(e) {
+                var content = e.target.result;
+                var dims = extractHtmlDims(content);
+                var resetStyle = '<style>html{overflow:hidden}body{overflow:hidden;margin:0;padding:0;font-size:0;line-height:0}</style>';
+                var scaleScript = '<script>(function(){var NW='+dims.w+',NH='+dims.h+';function s(){var c=document.querySelector(\'.canvas\');if(!c)return;var sc=window.innerWidth/NW;c.style.transform=\'scale(\'+sc+\')\';c.style.transformOrigin=\'top left\';var h=Math.round(NH*sc);document.body.style.height=h+\'px\';}window.addEventListener(\'resize\',s);if(document.readyState===\'complete\')s();else window.addEventListener(\'load\',s);s();})()\x3c/script>';
+                htmlStore[sk] = { content: resetStyle + scaleScript + content.trim(), w: dims.w, h: dims.h };
+                var wr = document.getElementById(wrapId);
+                if (wr) {
+                    wr.classList.add('filled');
+                    var th = document.getElementById(thumbId);
+                    if (th) { th.src = ''; th.style.display = 'none'; }
+                    var lbl = wr.querySelector('.html-gfx-label');
+                    if (!lbl) { lbl = document.createElement('div'); lbl.className = 'html-gfx-label'; wr.appendChild(lbl); }
+                    lbl.textContent = f.name;
+                }
+                update();
+            };
+            r.readAsText(f);
             return;
+        }
         var r = new FileReader();
         r.onload = function(e) {
             imageStore[sk] = e.target.result;
             var th = document.getElementById(thumbId),
                 wr = document.getElementById(wrapId);
-            if (th)
-                th.src = e.target.result;
-            if (wr)
-                wr.classList.add('filled');
+            if (th) { th.src = e.target.result; th.style.display = ''; }
+            if (wr) wr.classList.add('filled');
             update();
         };
         r.readAsDataURL(f);
     }
-    function handleHeroAsset(input, thumbId, wrapId, sk) {
-        var f = input.files[0];
-        if (!f) return;
-        var r = new FileReader();
-        var isHtml = f.name.toLowerCase().endsWith('.html') || f.type === 'text/html';
-        if (isHtml) {
-            r.onload = function(e) {
-                imageStore[sk] = 'html:' + e.target.result;
-                var wr = document.getElementById(wrapId);
-                if (wr) { wr.classList.add('filled'); wr.classList.add('html-filled'); }
-                update();
-            };
-            r.readAsText(f);
-        } else {
-            r.onload = function(e) {
-                imageStore[sk] = e.target.result;
-                var th = document.getElementById(thumbId), wr = document.getElementById(wrapId);
-                if (th) th.src = e.target.result;
-                if (wr) { wr.classList.add('filled'); wr.classList.remove('html-filled'); }
-                update();
-            };
-            r.readAsDataURL(f);
-        }
-    }
     function clearImg(e, thumbId, wrapId, sk) {
         e.stopPropagation();
         delete imageStore[sk];
+        delete htmlStore[sk];
         var th = document.getElementById(thumbId),
             wr = document.getElementById(wrapId);
-        if (th)
-            th.src = '';
+        if (th) { th.src = ''; th.style.display = ''; }
         if (wr) {
             wr.classList.remove('filled');
-            wr.classList.remove('html-filled');
+            var lbl = wr.querySelector('.html-gfx-label');
+            if (lbl) lbl.remove();
         }
         update();
     }
@@ -2883,7 +2918,7 @@
         '<select class="rt-select" onchange="setSz(\'s' + id + '-b\',this.value);this.value=\'\'"><option value="">Size…</option><option value="12px">12</option><option value="13px">13</option><option value="14px">14</option><option value="15px">15</option><option value="16px">16</option></select></div>' +
         '<textarea id="s' + id + '-b" class="tall rt-attached" placeholder="Write 150–250 words…" oninput="update()"></textarea></div>' +
         '<div class="field" style="margin-top:7px"><label>Section Image <span class="opt">— optional</span></label>' +
-        '<div class="uw" id="wrap-s' + id + '-img"><input type="file" accept="image/*" onchange="handleImg(this,\'prev-s' + id + '-img\',\'wrap-s' + id + '-img\',\'sec-img-' + id + '\')"><button class="ucl" onclick="clearImg(event,\'prev-s' + id + '-img\',\'wrap-s' + id + '-img\',\'sec-img-' + id + '\')">✕</button><div class="uw-ph"><div style="font-size:15px">🖼</div><p>Click or drag &amp; drop</p></div><img id="prev-s' + id + '-img" class="uth" src="" alt=""></div>' +
+        '<div class="uw" id="wrap-s' + id + '-img"><input type="file" accept="image/*,.html" onchange="handleImg(this,\'prev-s' + id + '-img\',\'wrap-s' + id + '-img\',\'sec-img-' + id + '\')"><button class="ucl" onclick="clearImg(event,\'prev-s' + id + '-img\',\'wrap-s' + id + '-img\',\'sec-img-' + id + '\')">✕</button><div class="uw-ph"><div style="font-size:15px">🖼</div><p>Click or drag &amp; drop</p></div><img id="prev-s' + id + '-img" class="uth" src="" alt=""></div>' +
         '<div class="img-note">🔁 Hover image in preview to toggle position</div>' +
         '<div class="field" style="margin-top:5px"><label>Image Width</label><div class="range-row"><input type="range" id="simg-sz-' + id + '" min="30" max="100" value="100" oninput="update();document.getElementById(\'simgszv-' + id + '\').textContent=this.value+\'%\'"><span class="range-val" id="simgszv-' + id + '">100%</span></div></div></div>' +
         '<div class="tq-area">' +
@@ -3218,29 +3253,29 @@
 
     function renderHero() {
         var src = imgSrc('hero-img'), sz = gn('hero-img-size', 100);
+        var hs = htmlSrc('hero-img');
         var author = escR(g('authorName')) || 'The Ceries Team';
         var date   = escR(g('publishDate')) || 'April 2026';
         var meta = '<p class="hero-meta">Published on ' + date + '  ·  Written by ' + author + '</p>';
         var op = g('opening'), st = fmtSt('opening');
         var openingHTML = op ? parseBody(op, st) : '<span class="pc-empty-ph">Hook the reader here…</span>';
         var imgW = Math.min(sz, 48) + '%';
-        var isHtmlSrc = src && src.startsWith('html:');
-        var imgEl = src
-            ? (isHtmlSrc
-                ? '<div class="hero-img-wrap" style="width:'+imgW+';flex-shrink:0;align-self:stretch">'
-                  +'<iframe srcdoc="'+esc(src.slice(5))+'" style="width:100%;height:100%;min-height:300px;border:none;border-radius:14px;display:block" scrolling="no"></iframe></div>'
-                : '<div class="hero-img-wrap" style="width:'+imgW+';flex-shrink:0;align-self:stretch">'
-                  +'<img src="'+src+'" style="width:100%;height:100%;object-fit:cover;border-radius:14px;display:block" alt=""></div>')
+        var imgEl = hs
+            ? '<div class="hero-img-wrap" style="width:'+imgW+';aspect-ratio:1;flex-shrink:0;align-self:flex-start;margin-top:35px;margin-left:30px;overflow:hidden;border-radius:14px;clip-path:inset(0 round 14px);transform:translateZ(0)">'
+              +'<iframe srcdoc="'+esc(hs.content)+'" style="width:100%;height:100%;border:none;display:block" scrolling="no"></iframe></div>'
+            : src
+            ? '<div class="hero-img-wrap" style="width:'+imgW+';flex-shrink:0;align-self:stretch">'
+              +'<img src="'+src+'" style="width:100%;height:100%;object-fit:cover;border-radius:14px;display:block" alt=""></div>'
             : '<div class="hero-img-placeholder" style="width:42%;flex-shrink:0;align-self:stretch;min-height:200px">'
               +'[FEATURED IMAGE]<span style="font-size:9.5px;color:#d0ccc8">Upload in Hero →</span></div>';
-        var textCol = '<div style="flex:1;min-width:0;display:flex;flex-direction:column">'
+        var textCol = '<div style="flex:1;min-width:0;max-width:52%;padding-left:28px;display:flex;flex-direction:column">'
             + meta
             + '<div class="pc-h1" id="pc-title">' + renderTitle() + '</div>'
             + '<div class="hero-opening-inline" style="margin-top:16px">' + openingHTML + '</div>'
             + '</div>';
         var he = document.getElementById('pc-hero');
         he.classList.add('hero-side-layout');
-        he.innerHTML = '<div style="display:flex;align-items:stretch;gap:26px">' + textCol + imgEl + '</div>';
+        he.innerHTML = '<div style="display:flex;align-items:stretch;gap:48px">' + textCol + imgEl + '</div>';
         var openingEl = document.getElementById('opening-section-wrap');
         if (openingEl) openingEl.style.display = 'none';
     }
@@ -3284,9 +3319,13 @@
         return html;
     }
     function secImgWrap(id, src, sz, pos) {
+        var hs = htmlSrc('sec-img-' + id);
+        var btn = '<button class="img-overlay-btn" onclick="toggleSecImgPos(' + id + ')" style="opacity:0">' + (pos === 'before' ? '↓ After body' : '↑ Before body') + '</button>';
+        var media = hs
+            ? '<div style="overflow:hidden;border-radius:11px;clip-path:inset(0 round 11px)"><iframe srcdoc="' + esc(hs.content) + '" style="width:100%;height:' + hs.h + 'px;border:none;display:block" scrolling="no"></iframe></div>'
+            : '<img src="' + src + '" style="width:100%;border-radius:11px;display:block" alt="">';
         return '<div class="pc-section-img-box"><div style="display:inline-block;width:' + sz + '%;position:relative" onmouseenter="this.querySelector(\'.img-overlay-btn\').style.opacity=1" onmouseleave="this.querySelector(\'.img-overlay-btn\').style.opacity=0">' +
-        '<img src="' + src + '" style="width:100%;border-radius:11px;display:block" alt="">' +
-        '<button class="img-overlay-btn" onclick="toggleSecImgPos(' + id + ')" style="opacity:0">' + (pos === 'before' ? '↓ After body' : '↑ Before body') + '</button>' +
+        media + btn +
         '</div></div>';
     }
     function renderTQ(id, m) {
@@ -3361,7 +3400,11 @@
         cw.innerHTML = html;
     }
     function closImgWrap(src, sz) {
-        return '<div class="pc-section-img-box"><div style="display:inline-block;width:' + sz + '%;position:relative" onmouseenter="this.querySelector(\'.img-overlay-btn\').style.opacity=1" onmouseleave="this.querySelector(\'.img-overlay-btn\').style.opacity=0"><img src="' + src + '" style="width:100%;border-radius:11px;display:block" alt=""><button class="img-overlay-btn" onclick="toggleClosingImgPos()" style="opacity:0">' + (closingImgPos === 'before' ? '↓ After text' : '↑ Before text') + '</button></div></div>';
+        var hs = htmlSrc('closing-img');
+        var media = hs
+            ? '<div style="overflow:hidden;border-radius:11px;clip-path:inset(0 round 11px)"><iframe srcdoc="' + esc(hs.content) + '" style="width:100%;height:' + hs.h + 'px;border:none;display:block" scrolling="no"></iframe></div>'
+            : '<img src="' + src + '" style="width:100%;border-radius:11px;display:block" alt="">';
+        return '<div class="pc-section-img-box"><div style="display:inline-block;width:' + sz + '%;position:relative" onmouseenter="this.querySelector(\'.img-overlay-btn\').style.opacity=1" onmouseleave="this.querySelector(\'.img-overlay-btn\').style.opacity=0">' + media + '<button class="img-overlay-btn" onclick="toggleClosingImgPos()" style="opacity:0">' + (closingImgPos === 'before' ? '↓ After text' : '↑ Before text') + '</button></div></div>';
     }
 
     function renderAuthor() {
@@ -3571,7 +3614,7 @@
         document.querySelectorAll('input[type="text"],input[type="url"],input[type="email"],textarea').forEach(function(el) {
             el.value = '';
         });
-        imageStore = {};
+        imageStore = {}; htmlStore = {};
         fieldSizes = {};
         document.querySelectorAll('.uw').forEach(function(w) {
             w.classList.remove('filled');
@@ -3585,9 +3628,10 @@
     }
 
     /* DOWNLOAD */
-    function downloadPost() {
+    function buildPostHTML() {
         var heroSrc = imgSrc('hero-img'),
             heroSz = gn('hero-img-size', 100);
+        var heroHs = htmlSrc('hero-img');
         var author = escR(g('authorName')) || 'The Ceries Team',
             date = escR(g('publishDate')) || '';
         var words = (g('authorName') || 'CT').trim().split(/\s+/);
@@ -3602,7 +3646,8 @@
                 m = secMeta[id];
             if (!m)
                 return;
-            if (!h && !b && !src && !m.tips.some(function(t) {
+            var hs = htmlSrc('sec-img-' + id);
+            if (!h && !b && !src && !hs && !m.tips.some(function(t) {
                 return t && t.trim();
             }) && !m.quotes.some(function(q) {
                 return q && q.trim();
@@ -3613,12 +3658,12 @@
             secHTML += '<div class="pc-section" id="pc-sec-' + id + '">';
             if (h)
                 secHTML += '<div class="section-subhead"><div class="triple-diamond"><div class="td td1"></div><div class="td td2"></div><div class="td td3"></div></div><span class="section-subhead-text" style="' + hSt + '">' + parseFmt(h) + '</span></div>';
-            if (src && m.imgPos === 'before')
-                secHTML += '<div style="text-align:center;margin:10px 0"><img src="' + src + '" style="width:' + sz + '%;border-radius:11px;display:inline-block" alt=""></div>';
+            if ((src || hs) && m.imgPos === 'before')
+                secHTML += hs ? '<div style="text-align:center;margin:10px 0"><div style="display:inline-block;width:min(' + sz + '%, ' + hs.w + 'px);overflow:hidden;border-radius:11px;clip-path:inset(0 round 11px)"><iframe srcdoc="' + esc(hs.content) + '" style="width:100%;height:' + hs.h + 'px;border:none;display:block" scrolling="no"></iframe></div></div>' : '<div style="text-align:center;margin:10px 0"><img src="' + src + '" style="width:' + sz + '%;border-radius:11px;display:inline-block" alt=""></div>';
             if (b)
                 secHTML += '<div class="pc-block">' + parseBody(b, bSt) + '</div>';
-            if (src && m.imgPos !== 'before')
-                secHTML += '<div style="text-align:center;margin:10px 0"><img src="' + src + '" style="width:' + sz + '%;border-radius:11px;display:inline-block" alt=""></div>';
+            if ((src || hs) && m.imgPos !== 'before')
+                secHTML += hs ? '<div style="text-align:center;margin:10px 0"><div style="display:inline-block;width:min(' + sz + '%, ' + hs.w + 'px);overflow:hidden;border-radius:11px;clip-path:inset(0 round 11px)"><iframe srcdoc="' + esc(hs.content) + '" style="width:100%;height:' + hs.h + 'px;border:none;display:block" scrolling="no"></iframe></div></div>' : '<div style="text-align:center;margin:10px 0"><img src="' + src + '" style="width:' + sz + '%;border-radius:11px;display:inline-block" alt=""></div>';
             m.tqOrder.forEach(function(key) {
                 if (key.startsWith('tip-')) {
                     var ti = parseInt(key.split('-')[1]);
@@ -3653,14 +3698,15 @@
         var hSz2 = gn('cl-h-sz', 18),
             clSt = fieldSizes['closing'] ? 'font-size:' + fieldSizes['closing'] + ';' : '';
         var clHTML = '';
-        if (cl || sub || clSrc) {
+        if (cl || sub || clSrc || htmlSrc('closing-img')) {
             clHTML = '<div class="pc-section" id="pc-closing-section"><div class="section-subhead"><div class="triple-diamond"><div class="td td1"></div><div class="td td2"></div><div class="td td3"></div></div><span class="section-subhead-text" style="font-size:' + hSz2 + 'px">' + escR(sub || 'Wrapping Up') + '</span></div>';
-            if (clSrc && closingImgPos === 'before')
-                clHTML += '<div style="text-align:center;margin:10px 0"><img src="' + clSrc + '" style="width:' + clSz + '%;border-radius:11px;display:inline-block" alt=""></div>';
+            var clHs = htmlSrc('closing-img');
+            if ((clSrc || clHs) && closingImgPos === 'before')
+                clHTML += clHs ? '<div style="text-align:center;margin:10px 0"><div style="display:inline-block;width:min(' + clSz + '%, ' + clHs.w + 'px);overflow:hidden;border-radius:11px;clip-path:inset(0 round 11px)"><iframe srcdoc="' + esc(clHs.content) + '" style="width:100%;height:' + clHs.h + 'px;border:none;display:block" scrolling="no"></iframe></div></div>' : '<div style="text-align:center;margin:10px 0"><img src="' + clSrc + '" style="width:' + clSz + '%;border-radius:11px;display:inline-block" alt=""></div>';
             if (cl)
                 clHTML += '<div class="pc-block">' + parseBody(cl, clSt) + '</div>';
-            if (clSrc && closingImgPos !== 'before')
-                clHTML += '<div style="text-align:center;margin:10px 0"><img src="' + clSrc + '" style="width:' + clSz + '%;border-radius:11px;display:inline-block" alt=""></div>';
+            if ((clSrc || clHs) && closingImgPos !== 'before')
+                clHTML += clHs ? '<div style="text-align:center;margin:10px 0"><div style="display:inline-block;width:min(' + clSz + '%, ' + clHs.w + 'px);overflow:hidden;border-radius:11px;clip-path:inset(0 round 11px)"><iframe srcdoc="' + esc(clHs.content) + '" style="width:100%;height:' + clHs.h + 'px;border:none;display:block" scrolling="no"></iframe></div></div>' : '<div style="text-align:center;margin:10px 0"><img src="' + clSrc + '" style="width:' + clSz + '%;border-radius:11px;display:inline-block" alt=""></div>';
             clHTML += '</div>';
         }
 
@@ -3739,23 +3785,22 @@
         moreHTML += '</div>';
 
         var wb = (heroImgPos === 'left' || heroImgPos === 'right') ? Math.min(heroSz, 48) + '%' : heroSz + '%';
-        var heroImgH = heroSrc ? '<div style="width:' + wb + '"><img src="' + heroSrc + '" style="width:100%;border-radius:14px;display:block" alt=""></div>' : '<div style="height:200px;background:#F0EDE8;border-radius:14px;border:1.5px dashed #ccc;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:11px;text-transform:uppercase">[Featured Image]</div>';
+        var heroImgH = heroHs ? '<div style="width:min(' + wb + ',' + heroHs.w + 'px);overflow:hidden;border-radius:14px;clip-path:inset(0 round 14px)"><iframe srcdoc="' + esc(heroHs.content) + '" style="width:100%;height:' + heroHs.h + 'px;border:none;display:block" scrolling="no"></iframe></div>' : heroSrc ? '<div style="width:' + wb + '"><img src="' + heroSrc + '" style="width:100%;border-radius:14px;display:block" alt=""></div>' : '<div style="height:200px;background:#F0EDE8;border-radius:14px;border:1.5px dashed #ccc;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:11px;text-transform:uppercase">[Featured Image]</div>';
         var titleBlockH = '<div style="flex:1;min-width:0"><p style="font-size:12px;color:#888;margin-bottom:14px">Published on ' + date + ' &nbsp;·&nbsp; Written by ' + author + '</p><div class="pc-h1" id="pc-title">' + renderTitle() + '</div></div>';
         var heroHTML = '';
         var dlOpText = parseBody(g('opening'), fieldSizes['opening'] ? 'font-size:'+fieldSizes['opening']+';' : '');
         var dlImgW = Math.min(heroSz,48)+'%';
-        var isHeroHtml = heroSrc && heroSrc.startsWith('html:');
-        var dlImgEl = heroSrc
-            ? (isHeroHtml
-                ? '<div style="width:'+dlImgW+';flex-shrink:0;align-self:stretch"><iframe srcdoc="'+esc(heroSrc.slice(5))+'" style="width:100%;height:100%;min-height:300px;border:none;border-radius:14px;display:block" scrolling="no"></iframe></div>'
-                : '<div style="width:'+dlImgW+';flex-shrink:0;align-self:stretch"><img src="'+heroSrc+'" style="width:100%;height:100%;object-fit:cover;border-radius:14px;display:block" alt=""></div>')
+        var dlImgEl = heroHs
+            ? '<div style="width:'+dlImgW+';aspect-ratio:1;flex-shrink:0;align-self:flex-start;margin-top:35px;margin-left:30px;overflow:hidden;border-radius:14px;clip-path:inset(0 round 14px);transform:translateZ(0)"><iframe srcdoc="'+esc(heroHs.content)+'" style="width:100%;height:100%;border:none;display:block" scrolling="no"></iframe></div>'
+            : heroSrc
+            ? '<div style="width:'+dlImgW+';flex-shrink:0;align-self:stretch"><img src="'+heroSrc+'" style="width:100%;height:100%;object-fit:cover;border-radius:14px;display:block" alt=""></div>'
             : '<div style="width:42%;flex-shrink:0;min-height:200px;background:#F0EDE8;border-radius:14px;border:1.5px dashed #ccc;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:11px;text-transform:uppercase">[Featured Image]</div>';
-        var dlTextCol = '<div style="flex:1;min-width:0;display:flex;flex-direction:column">'
+        var dlTextCol = '<div style="flex:1;min-width:0;max-width:52%;padding-left:28px;display:flex;flex-direction:column">'
             +'<p style="font-size:12px;color:#888;margin-bottom:14px">Published on '+date+'  ·  Written by '+author+'</p>'
             +'<div class="pc-h1" id="pc-title">'+renderTitle()+'</div>'
-            +'<div style="margin-top:16px;font-size:14.5px;line-height:1.85;color:#111;text-align:justify">'+dlOpText+'</div>'
+            +'<div style="margin-top:16px;font-size:14px;line-height:1.85;color:#111;text-align:justify">'+dlOpText+'</div>'
             +'</div>';
-        heroHTML = '<div style="display:flex;align-items:stretch;gap:26px">'+dlTextCol+dlImgEl+'</div>';
+        heroHTML = '<div style="display:flex;align-items:stretch;gap:48px">'+dlTextCol+dlImgEl+'</div>';
 
         var si = {
             fb: '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>',
@@ -3779,8 +3824,8 @@
         '.pc-hero{padding:44px 40px 30px;position:relative;overflow:hidden;background:radial-gradient(ellipse at 80% -10%,rgba(224,120,80,.12),transparent 55%);}' +
         '.pc-h1{font-size:clamp(28px,4vw,52px);font-weight:900;line-height:1.1;letter-spacing:-.03em;}.pc-h1 .em,.pc-h1 em{color:var(--coral);font-style:normal;}' +
         '.opening-section{padding:28px 40px 0;}' +
-        '.intro-p{font-size:14.5px;line-height:1.85;text-align:justify;padding-bottom:26px;border-bottom:1px solid rgba(0,0,0,.08);}' +
-        '.intro-p p{margin-bottom:10px;}.intro-p p:last-child{margin-bottom:0;}' +
+        '.intro-p{font-size:14px;line-height:1.85;text-align:justify;padding-bottom:26px;border-bottom:1px solid rgba(0,0,0,.08);}' +
+        '.intro-p p{margin-bottom:14px;}.intro-p p:last-child{margin-bottom:0;}' +
         '.content-layout{display:grid;grid-template-columns:220px 1fr 280px;align-items:start;}' +
         '.blog-main{padding:26px 40px 26px;min-width:0;}' +
         '.left-blog-aside{padding:44px 16px 22px;position:sticky;top:58px;align-self:start;max-height:calc(100vh - 58px);overflow-y:auto;display:flex;flex-direction:column;}' + '.right-blog-aside{padding:44px 16px 22px;position:sticky;top:58px;align-self:start;max-height:calc(100vh - 58px);overflow-y:auto;}' +
@@ -3871,9 +3916,12 @@
         '<div class="unified-cta"><h2>Keep up with the latest from Ceries</h2><p>Get the latest fulfillment tips, updates, and insights—or book a demo to see what Ceries can do for your brand.</p><div class="unified-cta-row"><input class="unified-cta-input" type="email" placeholder="Enter your email address"><button class="btn-unified-sub">Subscribe</button><a href="'+esc(ftDemo)+'" class="btn-unified-demo">Request a Demo</a></div></div>\n' +
         '</body>\n</html>';
 
-        var blob = new Blob([out], {
-            type: 'text/html'
-        });
+        return out;
+    }
+
+    function downloadPost() {
+        var out = buildPostHTML();
+        var blob = new Blob([out], { type: 'text/html' });
         var a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
         a.download = (g('postTitle') || 'blog-post').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '.html';
@@ -3881,6 +3929,33 @@
         a.click();
         document.body.removeChild(a);
         showToast('⬇ Blog post downloaded!');
+    }
+
+    async function submitForReview() {
+        var btns = document.querySelectorAll('[onclick*="submitForReview"]');
+        btns.forEach(function(b){ b.textContent = 'Submitting…'; b.disabled = true; });
+        try {
+            var html = buildPostHTML();
+            var title = (g('postTitle') || 'untitled').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+            var ts = new Date().toISOString().slice(0,19).replace(/[T:]/g, '-');
+            var filename = ts + '_' + title + '.html';
+            var encoded = btoa(unescape(encodeURIComponent(html)));
+            var resp = await fetch('https://blog-submit.ceries.workers.dev/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ filename: filename, content: encoded, title: title })
+            });
+            if (resp.ok) {
+                showToast('Submitted for review!');
+            } else {
+                var err = await resp.json();
+                showToast('Submit failed: ' + (err.message || resp.status));
+            }
+        } catch(e) {
+            showToast('Submit error: ' + e.message);
+        } finally {
+            btns.forEach(function(b){ b.textContent = 'Submit for Review'; b.disabled = false; });
+        }
     }
 
     (function() {
