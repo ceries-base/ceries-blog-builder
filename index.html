@@ -3940,7 +3940,7 @@
             var ts = new Date().toISOString().slice(0,19).replace(/[T:]/g, '-');
             var filename = ts + '_' + title + '.html';
             var encoded = btoa(unescape(encodeURIComponent(html)));
-            var resp = await fetch('https://blog-submit.ceries.workers.dev/submit', {
+            var resp = await fetch('https://blog-submit.arin-f23.workers.dev/submit', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ filename: filename, content: encoded, title: title })
@@ -3998,8 +3998,10 @@
         var tmpl = '[TITLE]\nYour Blog Post Title Here\n\n[TITLE_EMPHASIS]\nWords to highlight in orange (must appear in title)\n\n[AUTHOR]\nThe Ceries Team\n\n[DATE]\nApril 2026\n\n[OPENING]\nYour opening / intro paragraph goes here.\nSeparate paragraphs with a blank line.\n\n[SECTION 1 HEADING]\nFirst Section Subheading\n\n[SECTION 1 BODY]\nMain body text for section 1.\nSeparate paragraphs with a blank line.\n\n[SECTION 1 PARA 1]\nAdditional paragraph block 1 for section 1 (appears after main body, draggable).\n\n[SECTION 1 PARA 2]\nAdditional paragraph block 2 for section 1 — add as many as needed.\n\n[SECTION 1 TIP]\nOptional quick tip for section 1.\n\n[SECTION 1 QUOTE]\nOptional pull quote for section 1.\n\n[SECTION 2 HEADING]\nSecond Section Subheading\n\n[SECTION 2 BODY]\nBody text for section 2.\n\n[SECTION 2 PARA 1]\nExtra paragraph block for section 2 (optional).\n\n[SECTION 3 HEADING]\nThird Section Subheading\n\n[SECTION 3 BODY]\nBody text for section 3.\n\n[CLOSING HEADING]\nWrapping Up\n\n[CLOSING BODY]\nYour closing paragraph here.\n\n[CTA EYEBROW]\nReady to scale your fulfillment?\n\n[CTA HEADLINE]\nLet Ceries Handle the Heavy Lifting.\n\n[CTA BODY]\nShort 1-2 sentence call to action.';
         navigator.clipboard.writeText(tmpl).then(function(){ showToast('✓ Template copied — paste into your Google Doc'); });
     }
-    document.getElementById('import-modal').addEventListener('click', function(e){
-        if (e.target === this) closeImport();
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('import-modal').addEventListener('click', function(e){
+            if (e.target === this) closeImport();
+        });
     });
     function parseLabel(text, label) {
         var escaped = label.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
